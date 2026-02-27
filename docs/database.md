@@ -21,6 +21,10 @@ pnpm db:gap-analysis  # report missing fields by canton
 pnpm db:apply-research # apply web-researched data from research-results.json
 pnpm db:ingest-ingenbohl          # scrape + upload + insert Ingenbohl documents
 pnpm db:ingest-ingenbohl --dry-run # preview without changes
+pnpm db:seed-admin    # seed admin user (admin@protokolbase.ch)
+pnpm db:seed-top20    # seed top 20 municipality documents
+pnpm db:seed-top20 -- --dry-run     # preview without changes
+pnpm db:seed-top20 -- --metadata-only # DB records only, no blob upload
 pnpm typecheck        # type-check
 ```
 
@@ -28,7 +32,7 @@ pnpm typecheck        # type-check
 
 Each domain uses its own PostgreSQL schema for clean separation. Configure `schemaFilter` in `drizzle.config.ts` when adding new schemas.
 
-- **`municipalities`** — municipality reference data
+- **`municipalities`** — municipality reference data, documents, auth, and page images
 
 ## Tables
 
@@ -78,6 +82,44 @@ Protocol documents and related files scraped from municipality websites. Linked 
 | `updated_at` | timestamptz | Auto |
 
 Indexes: `source_url` (unique), `municipality_id`, `type`, `session_date`, `source_doc_id`
+
+### municipalities.users
+
+Auth.js v5 user accounts. Text UUIDs as primary keys (Auth.js requirement).
+
+| Column | Type | Notes |
+|--------|------|-------|
+| `id` | text PK | UUID, auto-generated |
+| `name` | text | Display name |
+| `email` | text | Unique, required |
+| `email_verified` | timestamp | Email verification |
+| `image` | text | Avatar URL |
+| `hashed_password` | text | bcrypt hash |
+| `role` | enum | user / admin |
+| `created_at` | timestamptz | Auto |
+| `updated_at` | timestamptz | Auto |
+
+### municipalities.accounts / sessions / verification_tokens
+
+Standard Auth.js v5 tables for OAuth providers, session management, and email verification. See `packages/db/src/schema/auth.ts`.
+
+### municipalities.document_pages
+
+Page-level images for document viewing. Each PDF page is rendered to a PNG and stored in Vercel Blob for fast web display.
+
+| Column | Type | Notes |
+|--------|------|-------|
+| `id` | integer PK | Auto-generated identity |
+| `document_id` | integer FK | References documents.id, cascade delete |
+| `page_number` | integer | 1-based page number |
+| `image_url` | text | Vercel Blob URL for page PNG |
+| `image_blob_pathname` | text | Path in blob store |
+| `width` | integer | Image width in pixels |
+| `height` | integer | Image height in pixels |
+| `text_content` | text | Extracted text for this page |
+| `created_at` | timestamptz | Auto |
+
+Indexes: `document_id` (FK), unique(`document_id`, `page_number`)
 
 ## Patterns
 - Frontend Server Components query DB directly via Drizzle (read-only for public pages)
