@@ -17,6 +17,8 @@
     "db:gap-analysis": "tsx seed/gap-analysis.ts",
     "db:apply-research": "tsx seed/apply-research-results.ts",
     "db:ingest-ingenbohl": "tsx seed/ingest-ingenbohl.ts",
+    "db:seed-admin": "tsx seed/seed-admin-user.ts",
+    "db:seed-top20": "tsx seed/seed-top20-documents.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -24,11 +26,13 @@
     "@neondatabase/serverless": "^0.10.0",
     "@vercel/blob": "^2.3.0",
     "dotenv": "^16.4.0",
+    "bcryptjs": "^2.4.3",
     "zod": "^3.23.0"
   },
   "devDependencies": {
     "cheerio": "^1.0.0",
     "drizzle-kit": "^0.31.0",
+    "@types/bcryptjs": "^2.4.6",
     "drizzle-zod": "^0.8.0",
     "tsx": "^4.19.0",
     "typescript": "^5.6.0"

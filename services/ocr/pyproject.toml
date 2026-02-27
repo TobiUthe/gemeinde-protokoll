@@ -1,0 +1,20 @@
+[project]
+name = "protokolbase-ocr"
+version = "0.1.0"
+description = "3-tier hybrid OCR pipeline for Swiss municipal protocols"
+requires-python = ">=3.11"
+dependencies = [
+    "pymupdf>=1.25.0",
+    "pdfplumber>=0.11.0",
+    "httpx>=0.28.0",
+    "Pillow>=11.0.0",
+    "psycopg2-binary>=2.9.0",
+]
+
+[project.optional-dependencies]
+modal = ["modal>=0.73.0"]
+dev = ["pytest>=8.0.0", "pytest-asyncio>=0.24.0"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
