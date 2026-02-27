@@ -3,16 +3,83 @@
 Drizzle ORM schema and migrations, backed by Neon PostgreSQL.
 
 ## Stack
-- Drizzle ORM
-- Neon PostgreSQL (serverless)
+- Drizzle ORM (`drizzle-orm` + `drizzle-kit`)
+- Neon PostgreSQL (serverless, `@neondatabase/serverless` neon-http driver)
+- Zod runtime validation via `drizzle-zod`
 
 ## Commands
 
 ```bash
-drizzle-kit push          # apply migrations
-drizzle-kit studio        # interactive schema browser
+cd packages/db
+pnpm db:push          # apply schema to Neon
+pnpm db:studio        # interactive schema browser
+pnpm db:generate      # generate migration files
+pnpm db:seed          # seed municipalities from OpenPLZ API
+pnpm db:enrich        # populate language, population, website_url from Wikidata
+pnpm db:fill-languages # auto-fill language for monolingual cantons
+pnpm db:gap-analysis  # report missing fields by canton
+pnpm db:apply-research # apply web-researched data from research-results.json
+pnpm db:ingest-ingenbohl          # scrape + upload + insert Ingenbohl documents
+pnpm db:ingest-ingenbohl --dry-run # preview without changes
+pnpm typecheck        # type-check
 ```
+
+## PostgreSQL Schemas
+
+Each domain uses its own PostgreSQL schema for clean separation. Configure `schemaFilter` in `drizzle.config.ts` when adding new schemas.
+
+- **`municipalities`** — municipality reference data
+
+## Tables
+
+### municipalities.municipalities
+
+Reference registry of all Swiss municipalities (2,115 rows). Seeded from [OpenPLZ API](https://openplzapi.org).
+
+| Column | Type | Notes |
+|--------|------|-------|
+| `id` | integer PK | Auto-generated identity |
+| `bfs_nr` | integer | BFS number, unique |
+| `name` | varchar(255) | Official name |
+| `canton` | enum | 2-letter code (AG..ZH) |
+| `district_nr` | integer | District BFS number |
+| `district_name` | varchar(255) | District name |
+| `language` | enum | de/fr/it/rm — Wikidata + canton mapping + web research |
+| `population` | integer | Wikidata + web research |
+| `website_url` | text | Wikidata + web research |
+| `status` | enum | active/merged/dissolved, default active |
+| `created_at` | timestamptz | Auto |
+| `updated_at` | timestamptz | Auto |
+
+Indexes: `bfs_nr` (unique), `canton`, `name`
+
+### municipalities.documents
+
+Protocol documents and related files scraped from municipality websites. Linked to municipalities via foreign key. PDFs stored in Vercel Blob.
+
+| Column | Type | Notes |
+|--------|------|-------|
+| `id` | integer PK | Auto-generated identity |
+| `municipality_id` | integer FK | References municipalities.id |
+| `source_url` | text | Original URL, unique |
+| `source_doc_id` | varchar(64) | CMS document ID |
+| `session_id` | varchar(64) | CMS session ID |
+| `title` | varchar(500) | Document title |
+| `type` | enum | protocol / financial_report / appendix / income_statement / valuation / agenda_item / other |
+| `session_date` | timestamp | Meeting date |
+| `session_title` | varchar(500) | Meeting title |
+| `file_name` | varchar(500) | Stored filename |
+| `file_size_bytes` | integer | File size |
+| `mime_type` | varchar(128) | Default application/pdf |
+| `blob_url` | text | Vercel Blob URL |
+| `blob_download_url` | text | Vercel Blob download URL |
+| `blob_pathname` | varchar(500) | Path in blob store |
+| `created_at` | timestamptz | Auto |
+| `updated_at` | timestamptz | Auto |
+
+Indexes: `source_url` (unique), `municipality_id`, `type`, `session_date`, `source_doc_id`
 
 ## Patterns
 - Frontend Server Components query DB directly via Drizzle (read-only for public pages)
 - Services write to DB, never communicate via HTTP between each other
+- Connection loads `.env.local` from repo root automatically

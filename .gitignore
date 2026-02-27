@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.env
+.env.local
+.env*.local
+*.tsbuildinfo
+drizzle/meta/
+.turbo/
+.next/
+.vercel/
+__pycache__/
+*.pyc
+.venv/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/

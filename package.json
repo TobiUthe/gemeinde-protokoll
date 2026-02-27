@@ -1,0 +1,7 @@
+{
+  "name": "protokolbase",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  }
+}

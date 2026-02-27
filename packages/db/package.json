@@ -1,0 +1,36 @@
+{
+  "name": "@protokolbase/db",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema": "./src/schema/index.ts"
+  },
+  "scripts": {
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "db:generate": "drizzle-kit generate",
+    "db:seed": "tsx seed/seed-municipalities.ts",
+    "db:enrich": "tsx seed/enrich-municipalities.ts",
+    "db:fill-languages": "tsx seed/fill-canton-languages.ts",
+    "db:gap-analysis": "tsx seed/gap-analysis.ts",
+    "db:apply-research": "tsx seed/apply-research-results.ts",
+    "db:ingest-ingenbohl": "tsx seed/ingest-ingenbohl.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.45.0",
+    "@neondatabase/serverless": "^0.10.0",
+    "@vercel/blob": "^2.3.0",
+    "dotenv": "^16.4.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "cheerio": "^1.0.0",
+    "drizzle-kit": "^0.31.0",
+    "drizzle-zod": "^0.8.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}
