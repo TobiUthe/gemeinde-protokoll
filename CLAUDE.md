@@ -50,6 +50,16 @@ docs/                      — Detailed documentation per component
 - **Services communicate** via DB or Modal function calls, never HTTP between services
 - **Frontend** — Server Components query DB directly via Drizzle
 
+## Planning
+
+- **Plan first** — for non-trivial tasks (3+ steps, multiple files, architectural decisions), write a structured plan before coding
+- **Plan format** — numbered steps, each with a clear deliverable; note files to modify and dependencies between steps
+- **Review before executing** — re-read the plan for consistency, completeness, and correct order; fix gaps before starting
+- **Step-by-step execution** — work through the plan one step at a time; mark each step done as you go
+- **Validate after each step** — verify the step's outcome (tests pass, types check, behavior correct) before moving to the next
+- **Adjust on the fly** — if a step reveals new information or a problem, update the remaining plan accordingly; don't blindly follow an outdated plan
+- **Given a plan** — when provided with an external plan, follow it step-by-step with the same validate-and-adjust discipline
+
 ## Docs
 
 Detailed docs live in `docs/`. Each app/service has its own file. See [docs/index.md](docs/index.md) for the full map.
